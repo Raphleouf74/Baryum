@@ -1,8 +1,8 @@
 # ----------------------------
 # Makefile Options
 # ----------------------------
-NAME = BARIUM
-DESCRIPTION = "Barium v0.2"
+NAME = BARYUM
+DESCRIPTION = "Baryum v0.2"
 COMPRESSED = NO
 ARCHIVED = NO
 
