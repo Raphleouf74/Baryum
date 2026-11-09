@@ -16,19 +16,19 @@ Le module n'a pas été testé sur d'autres modèles.
 
 Problème connus:  
     
-    - Après un lancement de programme, la calculatrice plante et redémarre. Baryum disparait de la liste [prgm].  
+    Après un lancement de programme, la calculatrice plante et redémarre. Baryum disparait de la liste [prgm].  
 
 Résolution:  
     
-    - Deux cas:  
+    Deux cas:  
       
-      - Si vous avez toujours "AsmHook 2" dans la liste [apps]: relancez l'installation et Baryum remarchera.  
+      Si vous avez toujours "AsmHook 2" dans la liste [apps]: relancez l'installation et Baryum remarchera.  
       
-      - Si vous n'avez pas "AsmHook 2" recommencez le jailbreak en utilisant bien la méthode affichée dans [arTIfiCE](https://yvantt.github.io/arTIfiCE/) et qui correspond à votre modèle de calculatrice  
+      Si vous n'avez pas "AsmHook 2" recommencez le jailbreak en utilisant bien la méthode affichée dans [arTIfiCE](https://yvantt.github.io/arTIfiCE/) et qui correspond à votre modèle de calculatrice  
 
 
 Problème connu:   
     
-    - Les programmes ne se lancent pas  
+    Les programmes ne se lancent pas  
 
 _Aucune méthode de résolution n'a été trouvée, c'est un bug normal qui sera réglé dans de futur builds_. Restez attentifs au GitHub pour de nouveaux correctifs.  
