@@ -1,10 +1,10 @@
 # ----------------------------
 # Makefile Options
 # ----------------------------
-NAME = BARYUM
-DESCRIPTION = "Baryum v0.2"
+NAME = BARIUM
+DESCRIPTION = "Barium v0.5.1"
 COMPRESSED = NO
-ARCHIVED = NO
+ARCHIVED = YES
 
 CFLAGS = -Wall -Wextra -Oz
 CXXFLAGS = -Wall -Wextra -Oz

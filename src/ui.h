@@ -20,7 +20,7 @@ void ui_init_text(void);
 
 /* Dessine toute la scène : fond, cadre de sélection (sel_x/sel_y en
  * coordonnées contenu), cartes, barres, scrollbar. scroll en pixels. */
-void ui_draw_scene(int sel_x, int sel_y, int scroll);
+void ui_draw_scene(int sel_x, int sel_y, int scroll, int launch_mode, int auto_return);
 
 /* Fenêtre modale d'information / d'erreur. */
 void ui_draw_popup(const char *title, const char *l1, const char *l2);

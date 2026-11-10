@@ -41,8 +41,9 @@ static void draw_card(int x, int y, const app_t *a)
 {
     char letter[2] = { a->name[0], '\0' };
     uint8_t icon = (a->kind == APP_NATIVE) ? COL_ACCENT : COL_MUTED;
-    const char *kind = (a->type != 5) ? "PROTEGE"
-                     : (a->kind == APP_NATIVE ? "ASM/C" : "BASIC");
+    char kind[12];
+    snprintf(kind, sizeof kind, "%s%s%s", a->kind == APP_NATIVE ? "ASM/C" : "BASIC",
+             a->type != 5 ? " P" : "", (a->kind == APP_BASIC && (a->flags & APP_F_STOP)) ? " S" : "");
 
     fill_round(x, y, CARD_W, CARD_H, CARD_RADIUS, COL_SURFACE);
     fill_round(x + 8, y + 8, 32, 32, 8, icon);
@@ -55,7 +56,7 @@ static void draw_card(int x, int y, const app_t *a)
     text(kind, x + 8, y + 64, COL_MUTED);
 }
 
-static void draw_bars(void)
+static void draw_bars(int launch_mode, int auto_return)
 {
     char buf[16];
 
@@ -63,6 +64,9 @@ static void draw_bars(void)
     gfx_SetColor(COL_BG);
     gfx_FillRectangle_NoClip(0, 0, 320, VIEW_TOP);
     text("BARIUM", 8, 10, COL_TEXT);
+    sprintf(buf, "Graph:L%d", launch_mode);
+    text(buf, 76, 10, COL_MUTED);
+    text(launch_mode < 2 ? "Del:--" : (auto_return ? "Del:Ret ON" : "Del:Ret OFF"), 150, 10, COL_MUTED);
     sprintf(buf, "%d prgm", app_count);
     text(buf, 320 - 8 - (int)gfx_GetStringWidth(buf), 10, COL_MUTED);
     gfx_SetColor(COL_SURFACE);
@@ -91,7 +95,7 @@ static void draw_scrollbar(int scroll, int total_rows)
     fill_round(313, thumb_y, 4, thumb_h, 2, COL_ACCENT);
 }
 
-void ui_draw_scene(int sel_x, int sel_y, int scroll)
+void ui_draw_scene(int sel_x, int sel_y, int scroll, int launch_mode, int auto_return)
 {
     int total_rows = (app_count + GRID_COLS - 1) / GRID_COLS;
     int r, c, r0;
@@ -101,7 +105,7 @@ void ui_draw_scene(int sel_x, int sel_y, int scroll)
     if (app_count == 0) {
         const char *msg = "Aucun programme trouve";
         text(msg, (320 - (int)gfx_GetStringWidth(msg)) / 2, 110, COL_MUTED);
-        draw_bars();
+        draw_bars(launch_mode, auto_return);
         return;
     }
 
@@ -120,7 +124,7 @@ void ui_draw_scene(int sel_x, int sel_y, int scroll)
         }
     }
 
-    draw_bars();                       /* recouvre les cartes qui débordent */
+    draw_bars(launch_mode, auto_return);                       /* recouvre les cartes qui débordent */
     draw_scrollbar(scroll, total_rows);
 }
 

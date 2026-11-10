@@ -7,6 +7,8 @@
 #include "theme.h"
 #include "ui.h"
 #include <graphx.h>
+#include <fileioc.h>
+#include <ti/vars.h>
 #include <stdbool.h>
 #include <stdio.h>
 
@@ -29,6 +31,7 @@ typedef struct {
 static settings_t cfg;
 static view_t v;
 static popup_t popup;
+static bool cfg_dirty;   /* reglages modifies, pas encore archives */
 
 static void show_popup(const char *title, const char *l1, const char *l2)
 {
@@ -74,7 +77,7 @@ static void render(void)
 {
     int x, y, sc;
     current_pos(&x, &y, &sc);
-    ui_draw_scene(x, y, sc);
+    ui_draw_scene(x, y, sc, cfg.launch_mode, cfg.auto_return);
     if (popup.active) ui_draw_popup(popup.title, popup.l1, popup.l2);
     gfx_SwapDraw();
 }
@@ -96,7 +99,9 @@ static int launcher_run(int start_sel, int retval, bool returned)
     gfx_Begin();
     gfx_SetDrawBuffer();
     settings_load(&cfg);
+    cfg_dirty = false;
     reinit_screen();
+    apps_cleanup_temp();        /* copie temporaire d'un lancement precedent */
     apps_scan(SELF_NAME);
 
     popup.active = false;
@@ -127,8 +132,23 @@ static int launcher_run(int start_sel, int retval, bool returned)
             if (ev & (EV_OK | EV_QUIT)) { popup.active = false; dirty = true; }
         } else {
             if (ev & EV_QUIT) break;
-            if (ev & EV_THEME)  { cfg.dark ^= 1; reinit_screen(); settings_save(&cfg); dirty = true; }
-            if (ev & EV_ACCENT) { cfg.accent = (cfg.accent + 1) % ACCENT_COUNT; reinit_screen(); settings_save(&cfg); dirty = true; }
+            if (ev & EV_THEME)  { cfg.dark ^= 1; reinit_screen(); settings_save(&cfg, false); cfg_dirty = true; dirty = true; }
+            if (ev & EV_ACCENT) { cfg.accent = (cfg.accent + 1) % ACCENT_COUNT; reinit_screen(); settings_save(&cfg, false); cfg_dirty = true; dirty = true; }
+            if (input_poll2() & EV2_MODE) { cfg.launch_mode = (cfg.launch_mode + 1) % 4; settings_save(&cfg, false); cfg_dirty = true; dirty = true; }
+            if (input_poll2() & EV2_INFO) {
+                /* Diagnostic memoire : taille que l'OS croit etre celle du programme en cours
+                 * (os_AsmPrgmSize) comparee a la taille reelle du fichier BARIUM. */
+                char a[36], b[36];
+                void *fp;
+                unsigned file = 0;
+                uint8_t h = ti_OpenVar(SELF_NAME, "r", OS_TYPE_PRGM);
+                if (h) { file = ti_GetSize(h); ti_Close(h); }
+                snprintf(a, sizeof a, "asm=%u fichier=%u", (unsigned)os_AsmPrgmSize, file);
+                snprintf(b, sizeof b, "RAM libre=%u  prgm=%d", (unsigned)os_MemChk(&fp), app_count);
+                show_popup("Diagnostic", a, b);
+                dirty = true;
+            }
+            if (input_poll2() & EV2_RETURN) { cfg.auto_return ^= 1; settings_save(&cfg, false); cfg_dirty = true; dirty = true; }
 
             if (app_count > 0) {
                 int idx = v.sel;
@@ -139,9 +159,12 @@ static int launcher_run(int start_sel, int retval, bool returned)
                 if (idx != v.sel) { select_index(idx, true); dirty = true; }
 
                 if (ev & EV_OK) {
-                    int code = apps_launch(&apps[v.sel], v.sel);
+                    int code;
+                    /* Aucune ecriture en flash avant un lancement (reglages archives a la sortie). */
+                    code = apps_launch(&apps[v.sel], v.sel, cfg.launch_mode, cfg.auto_return);
                     /* On n'arrive ici qu'en cas d'échec : on reste dans le launcher. */
                     reinit_screen();
+                    if (code == LAUNCH_OK + 100) { dirty = true; continue; }   /* dry-run termine */
                     show_popup("Lancement impossible", apps[v.sel].name, apps_error_text(code));
                     dirty = true;
                 }
@@ -152,6 +175,7 @@ static int launcher_run(int start_sel, int retval, bool returned)
         if (dirty) { render(); dirty = false; }
     }
 
+    if (cfg_dirty) settings_save(&cfg, true);
     gfx_End();
     return 0;
 }

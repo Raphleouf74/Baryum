@@ -15,5 +15,8 @@ enum {
 
 /* Appeler une fois par image : renvoie les événements (front montant,
  * avec répétition automatique pour les flèches). */
+/* Del est lu a part (bit supplementaire) */
+enum { EV2_RETURN = 1, EV2_MODE = 2, EV2_INFO = 4 };
+uint8_t input_poll2(void);   /* evenements secondaires (EV2_*), a appeler apres input_poll */
 uint8_t input_poll(void);
 #endif
