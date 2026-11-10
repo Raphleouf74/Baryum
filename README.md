@@ -1,4 +1,4 @@
-# Baryum (v0.2 - Alpha)
+# Baryum (v0.4 - Alpha)
 
 Build en version alpha: Bugs présents et peut ne pas marcher/provoquer des crashs.
 Peut ne pas fonctionner sur toutes les calculatrices.
